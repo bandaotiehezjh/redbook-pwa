@@ -1,0 +1,37 @@
+.translation-block {
+  margin: 14px 0 18px;
+  padding: 15px 16px;
+  border-radius: 16px;
+  background: #f3f6fa;
+  border-left: 4px solid #172844;
+}
+
+.translation-block b {
+  display: block;
+  margin-bottom: 7px;
+  color: #c94c41;
+  font-size: 13px;
+}
+
+.translation-block p {
+  margin: 0;
+  color: #4c586b;
+  font-size: 14px;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+#readingText {
+  padding: 15px 16px;
+  border-radius: 16px;
+  background: #fff9ed;
+  border-left: 4px solid #e3a63d;
+  color: #172844;
+  font-size: 17px;
+  line-height: 1.85;
+}
+
+#essayText {
+  font-size: 16px;
+  line-height: 1.9;
+}
