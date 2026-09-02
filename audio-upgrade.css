@@ -1,0 +1,14 @@
+.audio-hint {
+  margin: 9px 5px 0;
+  color: #8a93a1;
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.wide-audio:active,
+.audio:active,
+.quote:active {
+  transform: scale(.985);
+  opacity: .82;
+}
