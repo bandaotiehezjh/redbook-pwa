@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f7f2e9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="词汇通勤背">
+  <title>考研词汇通勤背</title>
+  <meta name="description" content="免费 iPhone PWA 背词样板">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div class="brand-icon">Aa</div>
+      <div><div class="eyebrow">GITHUB PAGES 样板</div><h1>考研词汇通勤背</h1></div>
+      <button id="reset" class="icon-button" aria-label="重置">↻</button>
+    </header>
+
+    <section class="progress-panel">
+      <div class="progress-row"><span>今日体验</span><strong id="progressText">0 / 5</strong></div>
+      <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+    </section>
+
+    <section class="word-card">
+      <div class="word-top">
+        <div><div id="sequence" class="sequence">WORD 1</div><h2 id="word">acquire</h2><div id="phonetic" class="phonetic">/əˈkwaɪə(r)/</div></div>
+        <button id="speakWord" class="speak" aria-label="单词朗读三遍">🔊</button>
+      </div>
+      <div id="meaning" class="meaning">v. 获得；习得</div>
+      <button id="speakExample" class="example">
+        <strong id="example">Skills are acquired through repeated practice.</strong>
+        <span id="translation">技能是在反复练习中习得的。</span>
+      </button>
+      <div class="choices">
+        <button data-mark="unknown" class="unknown">不认识</button>
+        <button data-mark="unsure" class="unsure">模糊</button>
+        <button data-mark="known" class="known">认识</button>
+      </div>
+    </section>
+
+    <section class="notes">
+      <div class="note"><span>✓</span><div><strong id="installState">免费 HTTPS 地址可安装</strong><p>iPhone Safari：分享 → 添加到主屏幕</p></div></div>
+      <div class="note"><span>⌁</span><div><strong>支持离线再次打开</strong><p>首次在线打开后，断网仍可打开样板并保存进度</p></div></div>
+    </section>
+    <p class="footer">当前仅含 5 个原创示例词，用来验证 GitHub 免费地址、主屏幕安装、发音和本地记录。</p>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>
