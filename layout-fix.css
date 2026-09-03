@@ -1,0 +1,20 @@
+/* Keep tappable words visually identical to normal prose. */
+.tap-word,
+.quote .tap-word,
+.sentence .tap-word,
+.reading-text .tap-word,
+.essay .tap-word {
+  display: inline !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  color: inherit !important;
+  font: inherit !important;
+  line-height: inherit !important;
+  text-decoration: none !important;
+  cursor: pointer;
+}
+
+.tap-word:active {
+  background: #dcecff;
+}
