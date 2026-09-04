@@ -23,10 +23,41 @@ const blueprints=[
 {rows:[['身份或背景','As <span class="slot">[身份]</span>, I sincerely appreciate <span class="slot">[对方的安排/帮助]</span>.'],['写信目的','I am writing to apologize for being unable to <span class="slot">[原约定]</span>.'],['解释原因','Unfortunately, <span class="slot">[客观原因]</span>, which makes it impossible for me to <span class="slot">[行动]</span>.'],['提出补救','If possible, I hope <span class="slot">[补救方案]</span>.'],['再次致歉','Please accept my sincere apology for <span class="slot">[造成的不便]</span>.'],['期待回复','I would appreciate it if you could <span class="slot">[期望对方回应]</span>.']],slots:[['身份','a participant / your student'],['客观原因','I have an urgent work assignment'],['补救方案','the meeting can be rearranged'],['期望回应','let me know whether this is possible']]}];
 
 function bestVoice(){const vs=speechSynthesis.getVoices();return vs.find(v=>/enhanced|premium|siri/i.test(v.name)&&/^en/i.test(v.lang))||vs.find(v=>/Samantha|Ava|Serena|Karen|Daniel|Moira|Google UK English Female|Microsoft Sonia/i.test(v.name))||vs.find(v=>/^en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang));}
-let mode=localStorage.getItem('wifeSpeechMode')||'normal', cancelled=false;
+let mode=localStorage.getItem('wifeSpeechMode')||'normal';
+let playbackId=0, playbackTimer=null, activeUtterance=null, cachedVoice;
+function refreshVoice(){cachedVoice=bestVoice()}
+refreshVoice();
+speechSynthesis.addEventListener('voiceschanged',refreshVoice);
+function playbackStatus(message){
+  let el=document.getElementById('playback-status');
+  if(!el){el=document.createElement('div');el.id='playback-status';el.setAttribute('role','status');el.style.cssText='position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:10000;background:#172844;color:white;padding:9px 16px;border-radius:16px;font-size:13px;pointer-events:none';document.body.appendChild(el)}
+  el.textContent=message;el.hidden=!message;
+}
 function clauses(t){return (t.match(/[^.!?]+[.!?]?/g)||[t]).map(x=>x.trim()).filter(Boolean)}
-function pause(ms){return new Promise(r=>setTimeout(r,ms))}
-async function expressive(text,repeat=1,forced){speechSynthesis.cancel();cancelled=false;const selected=forced||mode;for(let n=0;n<repeat&&!cancelled;n++){for(const p of clauses(text)){if(cancelled)return;await new Promise(resolve=>{const u=new SpeechSynthesisUtterance(p);u.voice=bestVoice();u.lang=(u.voice&&u.voice.lang)||'en-US';u.rate=selected==='slow'?.54:selected==='natural'?.82:.68;u.pitch=1;u.volume=1;u.onend=resolve;u.onerror=resolve;speechSynthesis.speak(u)});await pause(360)}}}
+function expressive(text,repeat=1,forced){
+  const id=++playbackId;
+  clearTimeout(playbackTimer);
+  if(activeUtterance){activeUtterance.onend=null;activeUtterance.onerror=null;activeUtterance.onstart=null}
+  if(speechSynthesis.speaking||speechSynthesis.pending||activeUtterance)speechSynthesis.cancel();
+  activeUtterance=null;
+  if(speechSynthesis.paused)speechSynthesis.resume();
+  const parts=clauses(String(text||'')),selected=forced||mode;
+  if(!parts.length){playbackStatus('');return}
+  const queue=Array.from({length:repeat},()=>parts).flat();let index=0;
+  playbackStatus('正在启动朗读…');
+  function next(){
+    if(id!==playbackId)return;
+    if(index>=queue.length){activeUtterance=null;playbackStatus('');return}
+    const u=new SpeechSynthesisUtterance(queue[index++]);activeUtterance=u;
+    const voice=cachedVoice||bestVoice();if(voice)u.voice=voice;
+    u.lang=voice?.lang||'en-US';u.rate=selected==='slow'?.54:selected==='natural'?.82:.68;u.pitch=1;u.volume=1;
+    u.onstart=()=>{if(id===playbackId)playbackStatus('正在朗读…')};
+    u.onend=()=>{if(id!==playbackId)return;activeUtterance=null;if(index===queue.length){playbackStatus('');return}playbackTimer=setTimeout(next,selected==='slow'?360:220)};
+    u.onerror=()=>{if(id!==playbackId)return;activeUtterance=null;playbackStatus('朗读未启动，请再点一次');playbackTimer=setTimeout(()=>{if(id===playbackId)playbackStatus('')},3000)};
+    speechSynthesis.speak(u);
+  }
+  next(); // First utterance is submitted synchronously in the user's click event.
+}
 window.speak=expressive;
 
 function insertSpeechPanels(){document.querySelectorAll('.screen').forEach(screen=>{if(screen.querySelector('.speech-panel'))return;const p=document.createElement('div');p.className='speech-panel';p.innerHTML='<div class="speech-title">朗读速度</div><div class="speech-buttons"><button class="speech-mode" data-mode="natural">自然朗读</button><button class="speech-mode" data-mode="normal">四六级慢速</button><button class="speech-mode" data-mode="slow">逐句精听</button></div><div class="speech-note">新版按完整句子朗读，让苹果语音自己处理句内重音，不再在每个逗号处生硬断开。</div><details class="ios-voice-help"><summary>苹果声音仍机械？点这里设置</summary>在 iPhone 打开“设置 → 辅助功能 → 朗读内容 → 声音 → 英语”，下载 Samantha、Ava 等增强版语音；下载后完全关闭 Safari 再重新打开网页。网页只能调用手机已有的声音，不能凭空变成真人录音。</details>';screen.insertBefore(p,screen.children[1]||null)});syncMode();document.querySelectorAll('.speech-mode').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;localStorage.setItem('wifeSpeechMode',mode);syncMode()})}
