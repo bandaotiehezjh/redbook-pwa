@@ -1,57 +1,40 @@
 (()=>{
-  const total=words.length;
-
-  function isMastered(index){return st.m[index]==='master'}
-  function remaining(){let count=0;for(let i=0;i<total;i++)if(!isMastered(i))count++;return count}
-  function nextUnmastered(from){
-    for(let step=1;step<=total;step++){
-      const index=(from+step)%total;
-      if(!isMastered(index))return index;
-    }
-    return -1;
+ const total=words.length,route=window.vocabularyRoute||{groups:[words.map((_,i)=>i)],labels:['全部词汇']};
+ const groups=route.groups;
+ const masteredAt=i=>st.m[i]==='master';
+ function active(){return groups.findIndex(g=>g.some(i=>!masteredAt(i)))}
+ function choose(from){
+  const g=groups[active()]||[],pos=g.indexOf(from);
+  for(let n=1;n<=g.length;n++){const i=g[(pos+n)%g.length];if(!masteredAt(i))return i}
+  return -1;
+ }
+ function refreshQueue(){
+  const stage=active(),left=words.reduce((n,_,i)=>n+!masteredAt(i),0);
+  let notice=document.getElementById('vocabulary-scope-notice');
+  if(!notice){notice=document.createElement('p');notice.id='vocabulary-scope-notice';notice.className='rule vocabulary-scope-notice';document.querySelector('#words .section-head').insertAdjacentElement('afterend',notice)}
+  notice.textContent='六级基础恢复路线：高频易遗忘词与大纲进阶 → 基础词回补 → 阅读拓展。共 '+total+' 词，未掌握 '+left+' 词。分层为学习建议，并非官方难度或真题频次排名。';
+  document.querySelectorAll('[data-mark]').forEach(b=>b.disabled=stage<0);
+  if(stage<0){
+   document.getElementById('word').textContent='本词库已完成';
+   document.getElementById('wordProgress').textContent='已掌握 '+total+' / '+total+' 个';
+   ['phonetic','example','translation'].forEach(id=>document.getElementById(id).textContent='');
+   document.getElementById('meaning').textContent='全部完成，不再把已掌握词作为新词循环。';
+   document.getElementById('note').textContent='可在“已掌握”页面复查。';
+   document.querySelector('.collocations')?.setAttribute('hidden','');
+   mastered();return;
   }
-  function setButtonsDisabled(disabled){
-    document.querySelectorAll('[data-mark]').forEach(button=>button.disabled=disabled);
-  }
-  function showFinished(){
-    document.getElementById('wordProgress').textContent=`已掌握 ${total} / ${total} 个`;
-    document.getElementById('wordNo').textContent='CURRENT VOCABULARY COMPLETE';
-    document.getElementById('word').textContent='本词库已完成';
-    document.getElementById('phonetic').textContent='';
-    document.getElementById('meaning').textContent=`当前版本共 ${total} 个词，不会再把已掌握词当作新词循环。`;
-    document.getElementById('note').textContent='5529 个大纲词头已经全部完成。可在“已掌握”中复查记录。';
-    document.getElementById('example').textContent='恭喜完成本轮考研大纲词汇。';
-    document.getElementById('translation').textContent='';
-    document.querySelector('.collocations')?.setAttribute('hidden','');
-    setButtonsDisabled(true);
-  }
-  function refreshQueue(){
-    const left=remaining();
-    let notice=document.getElementById('vocabulary-scope-notice');
-    if(!notice){
-      notice=document.createElement('p');notice.id='vocabulary-scope-notice';notice.className='rule vocabulary-scope-notice';
-      document.querySelector('#words .section-head').insertAdjacentElement('afterend',notice);
-    }
-    notice.textContent=`完整考研大纲词库：${total} 个｜尚未掌握：${left} 个｜按综合语料词频由高到低学习。`;
-    if(left===0){showFinished();mastered();return}
-    const current=((st.i%total)+total)%total;
-    if(isMastered(current)){st.i=nextUnmastered(current);save()}
-    setButtonsDisabled(false);
-    document.querySelector('.collocations')?.removeAttribute('hidden');
-    word();
-    document.getElementById('wordProgress').textContent=`第 ${st.i+1} / ${total} 个 · 未掌握 ${left} 个`;
-    mastered();
-  }
-
-  document.querySelectorAll('[data-mark]').forEach(button=>{
-    button.onclick=()=>{
-      const current=((st.i%total)+total)%total;
-      st.m[current]=button.dataset.mark;
-      st.done++;
-      const next=nextUnmastered(current);
-      if(next>=0)st.i=next;
-      save();refreshQueue();
-    };
-  });
-  refreshQueue();
+  if(!st.priorityV12||!groups[stage].includes(st.i)||masteredAt(st.i)){st.i=choose(-1);st.priorityV12=true;save()}
+  document.querySelector('.collocations')?.removeAttribute('hidden');
+  word();
+  const g=groups[stage],done=g.filter(masteredAt).length;
+  document.getElementById('wordProgress').textContent='阶段 '+(stage+1)+' · '+route.labels[stage]+' · 已掌握 '+done+'/'+g.length;
+  mastered();
+ }
+ document.querySelectorAll('[data-mark]').forEach(button=>button.onclick=()=>{
+  if(active()<0)return;
+  const current=st.i;st.m[current]=button.dataset.mark;st.done++;
+  const next=choose(current);if(next>=0)st.i=next;
+  save();refreshQueue();
+ });
+ refreshQueue();
 })();
