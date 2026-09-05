@@ -12,7 +12,7 @@
   const stage=active(),left=words.reduce((n,_,i)=>n+!masteredAt(i),0);
   let notice=document.getElementById('vocabulary-scope-notice');
   if(!notice){notice=document.createElement('p');notice.id='vocabulary-scope-notice';notice.className='rule vocabulary-scope-notice';document.querySelector('#words .section-head').insertAdjacentElement('afterend',notice)}
-  notice.textContent='六级基础恢复路线：高频易遗忘词与大纲进阶 → 基础词回补 → 阅读拓展。共 '+total+' 词，未掌握 '+left+' 词。分层为学习建议，并非官方难度或真题频次排名。';
+  notice.textContent='学习路线：真题重点词 → 真题基础词 → 剩余高频与大纲词 → 基础词回补 → 阅读拓展。共 '+total+' 词，未掌握 '+left+' 词。真题阶段内按覆盖年份数降序，同频时按最近年份倒序。';
   document.querySelectorAll('[data-mark]').forEach(b=>b.disabled=stage<0);
   if(stage<0){
    document.getElementById('word').textContent='本词库已完成';
@@ -23,10 +23,11 @@
    document.querySelector('.collocations')?.setAttribute('hidden','');
    mastered();return;
   }
-  if(!st.priorityV12||!groups[stage].includes(st.i)||masteredAt(st.i)){st.i=choose(-1);st.priorityV12=true;save()}
+  if(!st.priorityV14||!groups[stage].includes(st.i)||masteredAt(st.i)){st.i=choose(-1);st.priorityV14=true;save()}
   document.querySelector('.collocations')?.removeAttribute('hidden');
   word();
   const g=groups[stage],done=g.filter(masteredAt).length;
+  document.getElementById('wordNo').textContent='STAGE '+(stage+1)+' · ITEM '+(g.indexOf(st.i)+1);
   document.getElementById('wordProgress').textContent='阶段 '+(stage+1)+' · '+route.labels[stage]+' · 已掌握 '+done+'/'+g.length;
   mastered();
  }

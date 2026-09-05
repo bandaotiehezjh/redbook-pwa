@@ -2,7 +2,7 @@
 (()=>{
  const preferred=new Set('evidence approach policy assess assessment assume assumption establish indicate implication significant constitute derive interpret evaluate analysis analyze concept context consistent constraint contribute consequence distinction distinguish emphasis emerge enhance estimate factor function fundamental hypothesis identify impact implement incentive insight integrate issue justify maintain mechanism obtain perspective potential principle process proportion relevant require resource respond restrict retain reveal role shift source specific strategy structure substantial sufficient theory trend vary whereas acknowledge acquire adapt advocate allocate alternative ambiguous anticipate apparent arbitrary aspect attribute capacity coherent coincide compensate comprehensive compromise conceive conclude conduct confirm considerable conventional correlate criterion crucial decline demonstrate denote determine dimension discriminate diverse dominate empirical enable encounter equivalent evident exceed exclude explicit expose facilitate feature fluctuate framework generate illustrate impose imply incorporate inevitable infer inhibit initial innovation instance intensity intervene intrinsic involve isolate objective occur perceive phenomenon precise predict predominant preliminary presume previous primary procedure promote pursue rational refine reinforce reject rely resolve scope seek specify stable status stimulate subsequent substitute sustain tendency transform underlying undertake valid variable verify widespread'.split(' '));
  const basic=new Set('the be a to of and in have that it for on they you with as their by not he from at will more do we this or can I one but people what there well about than his time say work which when should your use all she who each some other if year its word may take many most read up her only would go no so get two our out just how find way into because man like through woman school think world much life long need first help four job learn high now good over then minute after live know line these become could even also come such mean letter see three those end want must food country choose any my day less both very great thing look too between before number own feel family often old parent few home while different point last place pay still keep where book second listen why put might try money ask seem speak same important right believe far young large call city start another during age leave every talk car short down grow without hour back big begin early off spend little dog cat boy girl mother father sister brother house water eat drink walk run happy sad bed room table chair pen pencil apple orange red blue green black white hello yes please thank beautiful easy difficult name friend love hand head face eye ear nose foot arm leg today tomorrow yesterday week month Monday Tuesday Wednesday Thursday Friday Saturday Sunday January February March April May June July August September October November December zero five six seven eight nine ten hundred thousand morning night evening afternoon summer winter spring autumn door window bus train tree flower rain snow sun moon hot cold warm cool open close buy sell cheap expensive sleep wake breakfast lunch dinner shirt shoes fish bird horse cow pig chicken bread milk coffee tea sugar salt rice meat kitchen bathroom hospital doctor nurse teacher student university college English Chinese language question answer new'.split(' '));
- const originalCount=words.length;
+ const originalCount=window.EDITORIAL_EXTRA_START||words.length;
  const extra=[
  ['algorithmic','算法的','algorithmic bias','算法偏差'],
  ['decarbonization','脱碳；减少碳排放','industrial decarbonization','工业脱碳'],
@@ -15,9 +15,18 @@
  ['microplastic','微塑料','microplastic pollution','微塑料污染'],
  ['cybersecurity','网络安全','cybersecurity risks','网络安全风险'],
  ['crowdfunding','众筹','a crowdfunding platform','众筹平台']];
- extra.forEach(([a,c,d,e])=>{if(!words.some(w=>w.a===a))words.push({a,b:'',c,d,e,f:'原创阅读拓展条目；不在本版基础词表中，不代表官方认定的超纲词。'})});
+ /* The same eleven entries are inserted by base-extras.js before exam supplements,
+    preserving indices from the previous release. */
  const core=[],foundation=[],extension=[];
- words.forEach((w,i)=>{if(i>=originalCount)extension.push(i);else if(basic.has(w.a)&&!preferred.has(w.a))foundation.push(i);else core.push(i)});
+ words.forEach((w,i)=>{if(i>=originalCount&&i<(window.EDITORIAL_EXTRA_END||originalCount))extension.push(i);else if(i<originalCount&&basic.has(w.a)&&!preferred.has(w.a))foundation.push(i);else if(i<originalCount)core.push(i)});
  core.sort((a,b)=>Number(preferred.has(words[b].a))-Number(preferred.has(words[a].a))||a-b);
- window.vocabularyRoute={groups:[core,foundation,extension],labels:['高频易遗忘词 → 大纲进阶','基础词回补','阅读拓展词'],originalCount};
+ const exam=window.EXAM_TARGET_PRIORITY?.indices||[];
+ const used=new Set(exam);
+ const examFoundation=exam.filter(i=>i<originalCount&&basic.has(words[i].a));
+ const examImportant=exam.filter(i=>!examFoundation.includes(i));
+ window.vocabularyRoute={
+  groups:[examImportant,examFoundation,core.filter(i=>!used.has(i)),foundation.filter(i=>!used.has(i)),extension.filter(i=>!used.has(i))],
+  labels:['真题题目与选项重点词','真题题目与选项基础词','剩余高频词与大纲词','剩余基础词回补','阅读拓展词'],
+  originalCount
+ };
 })();
