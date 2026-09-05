@@ -34,7 +34,7 @@
   if(active()<0)return;
   const current=st.i;st.m[current]=button.dataset.mark;st.done++;
   const next=choose(current);if(next>=0)st.i=next;
-  save();refreshQueue();
+  save();refreshQueue();window.wordAutoRead?.();
  });
  refreshQueue();
 })();
