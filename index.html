@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="./word-inline-controls.css">
 <link rel="stylesheet" href="./recall-layout.css">
 <link rel="stylesheet" href="./offline-cache.css">
+<link rel="stylesheet" href="./special-study.css">
 </head>
 <body>
 <main class="page">
@@ -50,6 +51,7 @@
 <button data-page="reading">阅读</button>
 <button data-page="writing">作文</button>
 <button data-page="mastered">已掌握</button>
+<button data-page="specialStudy">专项</button>
 </nav>
 <section id="words" class="screen">
 <div class="section-head">
@@ -176,6 +178,18 @@
 <div id="masteredList" class="chips">暂未掌握单词。先完成今天的词卡。</div>
 </article>
 </section>
+<section id="specialStudy" class="screen hide special-study-screen">
+<div class="section-head">
+<div><h2>专项学习中心</h2><p>词根词缀 · 作文话题 · 英译汉 · 卫生综合</p></div>
+</div>
+<div class="special-tabs" role="tablist">
+<button class="on" data-special="roots">词根词缀</button>
+<button data-special="topics">话题词汇</button>
+<button data-special="translation">英译汉</button>
+<button data-special="medical">卫生综合</button>
+</div>
+<article id="specialPanel" class="card special-panel" aria-live="polite"></article>
+</section>
 <section id="settings" class="modal hide">
 <div class="modal-body">
 <button id="close" class="close">×</button>
@@ -221,6 +235,7 @@
 <script src="./recall-layout.js"></script>
 <script src="./offline-cache.js"></script>
 <script src="./fixed-audio.js"></script>
+<script src="./special-study.js"></script>
 </body>
 </html>
 
