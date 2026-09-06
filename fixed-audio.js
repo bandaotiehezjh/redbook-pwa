@@ -1,0 +1,15 @@
+(()=>{'use strict';
+let manifest=null,token=0,current=null;
+const ready=fetch('./fixed-audio-manifest.json').then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(x=>manifest=x).catch(()=>null);
+const norm=x=>String(x||'').replace(/\s+/g,' ').trim();
+const rate=forced=>(forced||localStorage.getItem('wifeSpeechMode')||'normal')==='slow'?.72:(forced||localStorage.getItem('wifeSpeechMode')||'normal')==='natural'?1:.86;
+function stop(){token++;if(current){current.pause();current.src='';current=null}speechSynthesis?.cancel?.()}
+async function playFile(item,repeat=1,forced){await ready;if(!item)return false;stop();const my=token;let round=0;const audio=new Audio(item.file);current=audio;audio.preload='auto';audio.playbackRate=rate(forced);
+ return new Promise(resolve=>{const start=Number(item.start||0),end=Number(item.end||Infinity);const go=()=>{if(my!==token)return resolve(false);audio.currentTime=start;audio.play().catch(()=>resolve(false))};audio.addEventListener('loadedmetadata',go,{once:true});audio.addEventListener('timeupdate',()=>{if(audio.currentTime>=end){audio.pause();if(++round<repeat)setTimeout(go,forced==='slow'?350:180);else{current=null;resolve(true)}}});audio.addEventListener('ended',()=>{if(end!==Infinity)return;if(++round<repeat)setTimeout(go,forced==='slow'?350:180);else{current=null;resolve(true)}});audio.addEventListener('error',()=>resolve(false),{once:true})})}
+async function fixedSpeak(text,repeat=1,forced){await ready;const clean=norm(text),word=manifest?.words?.[clean.toLowerCase()],content=manifest?.content?.[clean];if(word)return playFile(word,repeat,forced);if(content)return playFile(content,repeat,forced);return false}
+window.fixedSpeak=fixedSpeak;
+window.speak=function(text,repeat=1,forced){fixedSpeak(text,repeat,forced)};
+document.addEventListener('click',e=>{const b=e.target.closest('#listenWord,#listenExample,#listenSentence,#listenEssay,.slow-read,#tapWordAudio');if(!b)return;let text='',repeat=1,forced=b.classList.contains('slow-read')?'slow':undefined;if(b.id==='listenWord'||b.dataset.slowFor==='listenWord'){text=document.getElementById('word')?.textContent;repeat=3}else if(b.id==='listenExample'||b.dataset.slowFor==='listenExample')text=document.getElementById('example')?.textContent;else if(b.id==='listenSentence'||b.dataset.slowFor==='listenSentence')text=document.getElementById('sentenceEn')?.textContent;else if(b.id==='listenEssay'||b.dataset.slowFor==='listenEssay')text=document.getElementById('essayText')?.textContent;else if(b.id==='tapWordAudio')text=document.getElementById('tapWordTitle')?.textContent;if(!text)return;e.preventDefault();e.stopImmediatePropagation();fixedSpeak(text,repeat,forced)},true);
+window.addEventListener('beforeunload',stop);
+ready.then(x=>{if(!x)return;document.querySelectorAll('.speech-note').forEach(n=>{if(/苹果|语音|朗读/.test(n.textContent))n.textContent='本版使用随网页下载的固定神经网络音频；三档速度仅调整同一音源的播放速度，不再依赖苹果系统语音。'});document.querySelectorAll('.ios-voice-help').forEach(n=>n.remove())});
+})();

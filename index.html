@@ -19,6 +19,9 @@
 <link rel="stylesheet" href="./queue-fix.css">
 <link rel="stylesheet" href="./word-auto-read.css">
 <link rel="stylesheet" href="./exam-priority-ui.css">
+<link rel="stylesheet" href="./word-inline-controls.css">
+<link rel="stylesheet" href="./recall-layout.css">
+<link rel="stylesheet" href="./offline-cache.css">
 </head>
 <body>
 <main class="page">
@@ -185,6 +188,7 @@
 </select> 个</label>
 <p>当前收录 5529 个考研英语大纲词头，按综合语料词频学习；既有学习记录会自动迁移。</p>
 <p>真题模块仅放少量必要摘录，其余为原创改写、分析和范文。</p>
+<div class="offline-cache-box"><b>离线使用</b><p id="offlineCacheStatus">正在检查缓存状态…</p><button id="offlineCacheToggle">清理离线文件缓存</button><p>清理缓存不会删除背词进度；以后仍想离线使用，可在这里重新开启。</p></div>
 </div>
 </section>
 </main>
@@ -210,6 +214,13 @@
 <script src="./exam-priority-ui.js"></script>
 <script src="./queue-fix.js">
 </script>
+<script src="./phonetic-data.js"></script>
+<script src="./word-inline-controls.js"></script>
+<script src="./full-dictionary-data.js"></script>
+<script src="./dictionary-expansion.js"></script>
+<script src="./recall-layout.js"></script>
+<script src="./offline-cache.js"></script>
+<script src="./fixed-audio.js"></script>
 </body>
 </html>
 
